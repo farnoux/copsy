@@ -77,31 +77,57 @@
       return c;
     }
     
-    function toggleTooltip(ele, message) {
-      var tipsy = ele.tipsy(true);
-      tipsy.options.title = function () { 
-        return message;
-      };
-      message ? tipsy.show() : tipsy.hide();
-    }
-    
+    //TODO: Add it as an add-on hook
     function toggleClass(ele, valid) {
       ele[(valid ? 'add' : 'remove') + 'Class']('valid');
     }
+
+    function callbacks(fn) {
+      return $.Deferred(fn)
+        // Hide tooltip when validation pass
+        .done(function (element) {
+          var t = element.tipsy(true);
+          if (t !== undefined) {
+            t.hide();
+          }
+        })
+        // Show tooltip when validation fail
+        .fail(function (element, message) {
+          var tipsy = element.tipsy(true);
+          if (tipsy === undefined) {
+            element.tipsy({trigger: 'manual', gravity: 'w'});
+            tipsy = element.tipsy(true)
+          }
+          tipsy.options.title = function () {
+            return message;
+          };
+          tipsy.show();
+        });
+        // .promise();
+    }
     
     function validate() {
-      var $element = $(this),
-          message = get($element).validate(); // validate and get message if not valid
+      var element = $(this),
+          message = get(element).validate(); // validate and get message if not valid
       
+      callbacks(function (dfd) {
+        if (message === false) {
+          dfd.resolve(element);
+        } else {
+          dfd.reject(element, message);
+        }
+      });
+
       // toggle tooltip
-      toggleTooltip($element, message);
+      // toggleTooltip($element, message);
       
       // toggle input class
-      toggleClass($element, !message);
+      // toggleClass($element, !message);
       
       return !message;
     }
     
+    // On form submit, validate all form elements
     function submit() {
       var valid = true;
       $elements.each(function () {
@@ -112,14 +138,14 @@
     
     // Bind fields' trigger events
     // $fields.tooltip({trigger: 'manual'}).bind('focus blur change keyup', validate);
-    $elements.tipsy({trigger: 'manual', gravity: 'w'});
+    // $elements.tipsy({trigger: 'manual', gravity: 'w'});
     
     $elements.filter(':radio').bind('change', validate);
     $elements.not(':radio').bind('focus blur change keyup', validate);
     
     // Bind form submit
     $form.submit(submit);
-    
+
     return this;
   };
   
@@ -130,29 +156,27 @@
   };
   
   
+  function validator(message, fn) {
+    return { message: message, test: fn };
+  }
+
   // 
   //  { <className> : 
   //    message: "validation message",
-  //    test: function([element], value) {
+  //    test: function([element,] value) {
   //      return ...;
   //    }
   //  }
   $.fn.copsy.validators = {
-    required: {
-      message: "Please, specify", test: function (value) {
-        return value && value.length > 0;
-      }
-    },
-    email: {
-      message: "Please, enter a valid email", test: function (value) {
-        return value.length < 1 || /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test(value);
-      }
-    },
-    numeric: {
-      message: "Please, enter only numeric values (0-9)", test: function (value) {
-        return value.length < 1 || /^\d+$/i.test(value);
-      }
-    }
+    "required" : validator("Please, specify", function (value) {
+      return value && value.length > 0;
+    }),
+    "email" : validator("Please, enter a valid email", function (value) {
+      return value.length < 1 || /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test(value);
+    }),
+    "numeric" : validator("Please, enter only numeric values (0-9)", function (value) {
+      return value.length < 1 || /^\d+$/i.test(value);
+    })
   };
   
   $.fn.copsy.specifics = {
@@ -164,5 +188,5 @@
       }
     }
   };
-          
+
 })(jQuery);
