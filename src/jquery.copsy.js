@@ -3,14 +3,12 @@
 // (c) 2011 Fred Arnoux / f@farnoux.com
 // released under the MIT license
 
-(function($) {
+(function ($) {
   
-  function extractKeys(object) {
-    var keys = [];
-    for(key in object) {
-      keys.push(key);
-    }
-    return keys;
+  function getKeys(object) {
+    return $.map(object, function (v, k) {
+      return k;
+    });
   }
 
   function Copsy(element, validators) {
@@ -21,54 +19,56 @@
   Copsy.prototype = {
     
     // return an error message if validation fails, false otherwise.
-    validate: function() {
+    validate: function () {
       if ($.fn.copsy.skip(this.$element)) {
         return false;
       }
-      var v, args, value = this.$element.val();
-      for each(v in this.validators) {
-        args = (v.test.length == 2) ? [this.$element, value] : [value];
-        if (!v.test.apply(null, args)) return v.message;
+      var i, v, args, value = this.$element.val();
+      for (i = 0; i < this.validators.length; i++) {
+        v = this.validators[i];
+        args = (v.test.length === 2) ? [this.$element, value] : [value];
+        if (!v.test.apply(null, args)) {
+          return v.message;
+        }
       }
       return false;
-    }  
+    }
   };
   
   // Copsy jQuery plugin
-  $.fn.copsy = function(options) {
+  $.fn.copsy = function (options) {
     var $form = this, 
-        $elements = $form.find(":input." + extractKeys($.fn.copsy.validators).join(",:input."));
+        $elements = $form.find(":input." + getKeys($.fn.copsy.validators).join(",:input."));
         // $form.find(':input.required, :input.email, :input.numeric');
 
-    // options = $.extend({}, $.fn.copsy.defaults, g);
-    
-    function getValidators(ele){
-      var validators = [];
-      // extract class attributes
-      for each (var name in ele.attr('class').split(/\s+/)) {
-        var v = getValidator(ele, name);
-        if (v) validators.push(v);
-      }
-      return validators;
-    }
-    
     function getValidator(element, name) {
       // Is there selector-specific validators matching this name ?
-      if (name in $.fn.copsy.specifics) {
-        var specifics = $.fn.copsy.specifics[name];
-        for(var selector in specifics) {
-          if (element.is(selector)) return specifics[selector];
+      if ($.fn.copsy.specifics[name] !== undefined) {
+        var selector, specifics = $.fn.copsy.specifics[name];
+        for (selector in specifics) {
+          if (element.is(selector)) {
+            return specifics[selector];
+          }
         }
       }
-      // Otherwise inspect default validators
-      if (name in $.fn.copsy.validators) {
-        return $.fn.copsy.validators[name];
-      }
-      return undefined;
+      // Otherwise return default validators if exist, else undefined
+      return $.fn.copsy.validators[name];
     }
     
+    function getValidators(ele) {
+      var validators = [];
+      // extract class attributes
+      $.each(ele.attr('class').split(/\s+/), function () {
+        var v = getValidator(ele, this);
+        if (v) {
+          validators.push(v);
+        }
+      });
+      return validators;
+    }
+
     // Get the Copsy object corresponding to the element
-    function get(ele){
+    function get(ele) {
       var c = $.data(ele, 'copsy');
       if (!c) {
         c = new Copsy(ele, getValidators(ele));
@@ -79,19 +79,19 @@
     
     function toggleTooltip(ele, message) {
       var tipsy = ele.tipsy(true);
-      tipsy.options.title = function(){ return message; };
-      message? tipsy.show() : tipsy.hide();
+      tipsy.options.title = function () { 
+        return message;
+      };
+      message ? tipsy.show() : tipsy.hide();
     }
     
     function toggleClass(ele, valid) {
-      ele[(valid?'add':'remove')+'Class']('valid');
+      ele[(valid ? 'add' : 'remove') + 'Class']('valid');
     }
     
     function validate() {
-      var $element = $(this);
-      
-      // validate and get message if not valid
-      var message = get($element).validate();
+      var $element = $(this),
+          message = get($element).validate(); // validate and get message if not valid
       
       // toggle tooltip
       toggleTooltip($element, message);
@@ -102,16 +102,16 @@
       return !message;
     }
     
-    function submit(){
+    function submit() {
       var valid = true;
-      $elements.each(function() {
+      $elements.each(function () {
         valid = validate.apply(this) && valid;
       });
       return valid;
     }
     
     // Bind fields' trigger events
-//    $fields.tooltip({trigger: 'manual'}).bind('focus blur change keyup', validate);
+    // $fields.tooltip({trigger: 'manual'}).bind('focus blur change keyup', validate);
     $elements.tipsy({trigger: 'manual', gravity: 'w'});
     
     $elements.filter(':radio').bind('change', validate);
@@ -123,11 +123,10 @@
     return this;
   };
   
-  $.fn.copsy.defaults = {
-  };
-  
-  $.fn.copsy.skip = function(element) {
-    if (element.is(':hidden')) return true;
+  $.fn.copsy.skip = function (element) {
+    if (element.is(':hidden')) {
+      return true;
+    }
   };
   
   
@@ -140,17 +139,17 @@
   //  }
   $.fn.copsy.validators = {
     required: {
-      message: "Please, specify", test: function(value) {
+      message: "Please, specify", test: function (value) {
         return value && value.length > 0;
       }
     },
     email: {
-      message: "Please, enter a valid email", test: function(value) {
+      message: "Please, enter a valid email", test: function (value) {
         return value.length < 1 || /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test(value);
       }
     },
     numeric: {
-      message: "Please, enter only numeric values (0-9)", test: function(value) {
+      message: "Please, enter only numeric values (0-9)", test: function (value) {
         return value.length < 1 || /^\d+$/i.test(value);
       }
     }
@@ -159,8 +158,8 @@
   $.fn.copsy.specifics = {
     required: { 
       'input:radio': {
-        test: function(element, value) {
-          return $('input[name='+ element.attr('name') +']:radio').is(':checked');
+        test: function (element, value) {
+          return $('input[name=' + element.attr('name') + ']:radio').is(':checked');
         }
       }
     }
