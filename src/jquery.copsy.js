@@ -55,16 +55,11 @@
       return $.fn.copsy.validators[name];
     }
     
-    function getValidators(ele) {
-      var validators = [];
+    function getValidators(element) {
       // extract class attributes
-      $.each(ele.attr('class').split(/\s+/), function () {
-        var v = getValidator(ele, this);
-        if (v) {
-          validators.push(v);
-        }
+      return $.map(element.attr('class').split(/\s+/), function (name) {
+        return getValidator(element, name) || null;
       });
-      return validators;
     }
 
     // Get the Copsy object corresponding to the element
