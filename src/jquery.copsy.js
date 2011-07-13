@@ -36,10 +36,14 @@
   };
   
   // Copsy jQuery plugin
-  $.fn.copsy = function (options) {
+  $.fn.copsy = function (handler) {
     var $form = this, 
         $elements = $form.find(":input." + getKeys($.fn.copsy.validators).join(",:input."));
         // $form.find(':input.required, :input.email, :input.numeric');
+
+    if (handler) {
+      $.fn.copsy.addHandler(handler);
+    }
 
     function getValidator(element, name) {
       // Is there selector-specific validators matching this name ?
@@ -71,41 +75,23 @@
       }
       return c;
     }
-
-    function callbacks(fn) {
-      return $.Deferred(fn)
-        // Hide tooltip when validation pass
-        .done(function (element) {
-          var t = element.tipsy(true);
-          if (t !== undefined) {
-            t.hide();
-          }
-        })
-        // Show tooltip when validation fail
-        .fail(function (element, message) {
-          var tipsy = element.tipsy(true);
-          if (tipsy === undefined) {
-            element.tipsy({trigger: 'manual', gravity: 'w'});
-            tipsy = element.tipsy(true)
-          }
-          tipsy.options.title = function () {
-            return message;
-          };
-          tipsy.show();
-        });
-        // .promise();
-    }
     
     function validate() {
       var element = $(this),
-          message = get(element).validate(); // validate and get message if not valid
-      
-      callbacks(function (dfd) {
-        if (message === false) {
-          dfd.resolve(element);
-        } else {
-          dfd.reject(element, message);
-        }
+        // Validate element
+        message = get(element).validate(),
+        // Create Promise object with the result of the validation
+        promise = $.Deferred(function (dfd) {
+          if (message === false) {
+            dfd.resolve(element);
+          } else {
+            dfd.reject(element, message);
+          }
+        }).promise();
+
+      // Add validation handlers to Promise object
+      $.each($.fn.copsy.handlers, function () {
+        this(promise);
       });
 
       return !message;
@@ -169,5 +155,43 @@
       }
     }
   };
+
+  // Array of validation handlers defining validation behavior
+  $.fn.copsy.handlers = [];
+  
+  // Handy helper function to add new validation handlers.
+  // <fn> argument is a handler function that should accept a Promise object as unique argument.
+  $.fn.copsy.addHandler = function (fn) {
+    if ($.isFunction(fn) && fn.length === 1) {
+      $.fn.copsy.handlers.push(fn);
+    }
+  };
+
+
+  //
+  // Add validation handlers to enable Tipsy tooltips.
+  // <validation> represent a validation Promise object.
+  //
+  $.fn.copsy.addHandler(function (validation) {
+    // Hide tooltip when validation pass
+    validation.done(function (element) {
+      var t = element.tipsy(true);
+      if (t !== undefined) {
+        t.hide();
+      }
+    })
+    // Show tooltip when validation fail
+    .fail(function (element, message) {
+      var tipsy = element.tipsy(true);
+      if (tipsy === undefined) {
+        element.tipsy({trigger: 'manual', gravity: 'w'});
+        tipsy = element.tipsy(true);
+      }
+      tipsy.options.title = function () {
+        return message;
+      };
+      tipsy.show();
+    });
+  });
 
 })(jQuery);
