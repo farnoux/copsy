@@ -71,11 +71,6 @@
       }
       return c;
     }
-    
-    //TODO: Add it as an add-on hook
-    function toggleClass(ele, valid) {
-      ele[(valid ? 'add' : 'remove') + 'Class']('valid');
-    }
 
     function callbacks(fn) {
       return $.Deferred(fn)
@@ -113,12 +108,6 @@
         }
       });
 
-      // toggle tooltip
-      // toggleTooltip($element, message);
-      
-      // toggle input class
-      // toggleClass($element, !message);
-      
       return !message;
     }
     
@@ -131,10 +120,7 @@
       return valid;
     }
     
-    // Bind fields' trigger events
-    // $fields.tooltip({trigger: 'manual'}).bind('focus blur change keyup', validate);
-    // $elements.tipsy({trigger: 'manual', gravity: 'w'});
-    
+    // Bind fields' trigger events    
     $elements.filter(':radio').bind('change', validate);
     $elements.not(':radio').bind('focus blur change keyup', validate);
     
