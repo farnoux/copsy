@@ -16,7 +16,15 @@
 
   <script>
     $(document).ready(function(){
-      $('form').copsy();
+      $('form').copsy(function (when) {
+        // Configure styling
+        when.fail(function (e) {
+          e.css('background-color', 'GREEN');
+        }).done(function (e) {
+          e.css('background-color', 'white');
+        });
+      });
+
     });
   </script>
 </head>
