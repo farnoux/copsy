@@ -1,16 +1,18 @@
-// copsy, input form validation for tipsy
-// version 0.1.0
-// (c) 2011 Fred Arnoux / fred@farnoux.com
-// released under the MIT license
+// Copsy, event-driven form validation for jQuery, using `$.Deferred`.
+// Version 0.1
+// (c) 2011 [Fred Arnoux](mailto:fred@farnoux.com)
+// Released under the MIT license
 
 (function ($) {
-
+  //
+  //## Copsy object
+  //
   function Copsy(element, validators) {
     this.$element = $(element);
     this.validators = validators;
   }
 
-  // Return the validator that didn't pass, false otherwise.
+  // Return the validator that didn't pass, `false` otherwise.
   Copsy.prototype.validate = function () {
     if ($.fn.copsy.skip(this.$element)) {
       return false;
@@ -27,7 +29,7 @@
     return false;
   };
   
-  // Copsy jQuery plugin
+  //## Copsy jQuery plugin
   $.fn.copsy = function (handler) {
     var $form = this, 
       $elements = $form.find(":input");
@@ -70,16 +72,22 @@
       return c;
     }
     
-    // Validate a form element
+    // Validate a form input element
     function validate() {
       var element = $(this),
-        v = get(element).validate(),  // Validate element
-        promise = $.Deferred(function (dfd) { // Create Promise object with the result of the validation
+        // Validate element
+        v = get(element).validate(),
+        // Create a [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the validation result.
+        promise = $.Deferred(function (dfd) {
+          //* Deferred is rejected when validation fails.
           if (v) {
             dfd.reject(element, $.fn.copsy.message[v.name]);
-          } else {
+          } 
+          //* Or susccessfully resolved otherwise.
+          else {
             dfd.resolve(element);
           }
+        // Finally the [Promise object](http://api.jquery.com/deferred.promise/) of the Deferred is returned.
         }).promise();
 
       // Add validation handlers to Promise object
@@ -90,7 +98,7 @@
       return !v;
     }
     
-    // On form submit, validate all form elements
+    // When form is submitted, validate all its elements.
     function submit() {
       var valid = true;
       $elements.each(function () {
@@ -116,12 +124,14 @@
     }
   };
 
-  $.fn.copsy.validators = {}; // Array of available validators
-  $.fn.copsy.handlers = [];   // Array of validation handlers
+  // Array of available validator objects.
+  $.fn.copsy.validators = {};
+  // Array of validation handlers.
+  $.fn.copsy.handlers = [];
 
-  // Handy helper function to easily add new validators
-  // <id> - the unique id
-  // <selector> - 
+  // Handy helper function to easily register new validators.
+  // `id` is the unique id
+  // `selector` is a CSS selector 
   $.fn.copsy.addValidator = function (id, selector, fn) {
     var v = $.fn.copsy.validators[id];
     if (!v) {
@@ -131,16 +141,22 @@
   };
 
   // Handy helper function to add new validation handlers.
-  // <fn> argument is a handler function that should accept a Promise object as unique argument.
+  // `fn` argument is a handler function that should accept a Promise object as unique argument.
   $.fn.copsy.addHandler = function (fn) {
     if ($.isFunction(fn) && fn.length === 1) {
       $.fn.copsy.handlers.push(fn);
     }
   };
 
-  /////////////////////////////////////////////////////////////////////////////
+})(jQuery);
+
+//
+//## Configuration
+//
+(function ($) {
+  //
   // Add validation handlers to enable Tipsy tooltips.
-  // <validation> represent a validation Promise object.
+  // `validation` represent a validation Promise object.
   //
   $.fn.copsy.addHandler(function (validation) {
     // Hide tooltip when validation pass
@@ -165,8 +181,9 @@
   });
 
 
-  /////////////////////////////////////////////////////////////////////////////
-  // Define some validators
+  //
+  //### Define validators
+  //
   $.fn.copsy.addValidator("mandatory", "input.mandatory", function (value) {
     return value && value.length > 0;
   });
@@ -179,13 +196,13 @@
     return value.length < 1 || /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test(value);
   });
 
-  /////////////////////////////////////////////////////////////////////////////
-  // Define corresponding validation messages
+  //
+  //### Define validation messages
+  //
   $.fn.copsy.message = {
     mandatory : "Please, specify",
     email : "Please, enter a valid email",
     numeric : "Please, enter only numeric values (0-9)"
   };
-  
 
 })(jQuery);
