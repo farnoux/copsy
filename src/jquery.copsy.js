@@ -39,13 +39,13 @@
     }
 
     function getValidator(element, name) {
-      // Is there validators matching this <name> ?
+      // Is there validators matching this `name` ?
       var test, v = $.fn.copsy.validators[name];
       if (!v) {
         return null;
       }
 
-      // Iterate over validators of type <name>
+      // Iterate over validators of type `name`
       $.each(v, function (selector, fn) {
         if (element.is(selector)) {
           test = fn;
@@ -53,7 +53,7 @@
         }
       });
 
-      return { name : name, test : test };
+      return { name: name, test: test };
     }
     
     function getValidators(element) {
@@ -81,7 +81,7 @@
         promise = $.Deferred(function (dfd) {
           //* Deferred is rejected when validation fails.
           if (v) {
-            dfd.reject(element, $.fn.copsy.message[v.name]);
+            dfd.reject(element, v.name);
           } 
           //* Or susccessfully resolved otherwise.
           else {
@@ -167,14 +167,14 @@
       }
     })
     // Show tooltip when validation fail
-    .fail(function (element, message) {
+    .fail(function (element, id) {
       var t = element.tipsy(true);
       if (!t) {
         element.tipsy({trigger: 'manual', gravity: 'w'});
         t = element.tipsy(true);
       }
       t.options.title = function () {
-        return message;
+        return $.fn.copsy.message[id];
       };
       t.show();
     });
