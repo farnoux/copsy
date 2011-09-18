@@ -16,7 +16,7 @@
     }
     #container {
       max-width: 40em;
-      margin: 3.5em 6.5em 0 6.5em;
+      margin: 3.5em 11em 0;
     }
     h1 {
       font-family: Georgia, serif;
@@ -50,7 +50,7 @@
     }
     code, pre {
       font-family: Monaco, Consolas, "Lucida Console", monospace;
-      font-size: .9em;
+      font-size: .8em;
       line-height: 1em;
       color: #3F4745;
     }
@@ -62,7 +62,21 @@
       border-left: 6px solid #717D7B;
       margin: 0 0 2em;
     }
+    form {
+      background-color: #eee;
+      padding: 1em;
+      margin-bottom: 1em;
+    }
   </style>
+  <link href="demo/css/tipsy.css" rel="stylesheet" media="screen">
+  
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+  <script src="src/jquery.copsy.js"></script>
+  <script src="demo/js/jquery.tipsy.js"></script>
+  <script>
+    $(document).ready(function(){
+    });
+  </script>
 </head>
 
 <body>
@@ -71,36 +85,58 @@
   <div id="container">
 
     <h1><span class="small">jquery.</span>copsy.js</a></h1>
-      <!-- <span class="small">by <a href="http://github.com/farnoux">farnoux</a></span></h1> -->
-    <p><a href="http://github.com/farnoux/copsy">Copsy</a> is a jquery plugin html form validation. It is not bound to any specific tooltip plugin. For now tooltip display is based on <a href="http://github.com/jaz303/tipsy">Tipsy</a>.</p>
-
-    <h2>Why another validation plugin?</h2>
-    <p>
-      Why not.
-    </p>
+    <p><a href="http://github.com/farnoux/copsy">Copsy</a> is an event-driven form validation plugin for jQuery. It is not bound to any specific tooltip plugin. For now tooltip display is based on <a href="http://github.com/jaz303/tipsy">Tipsy</a>.</p>
 
     <h2>Download</h2>
     <p>
       You can download this project in either
       <a href="http://github.com/farnoux/copsy/zipball/master">zip</a> or
-      <a href="http://github.com/farnoux/copsy/tarball/master">tar</a> formats.
+      <a href="http://github.com/farnoux/copsy/tarball/master">tar</a> formats, or also clone the project with <a href="http://git-scm.com">Git</a> by running:
+      <pre>git clone git://github.com/farnoux/copsy</pre>
     </p>
+    
+    <h2>Demo</h2>
     <p>
-      You can also clone the project with <a href="http://git-scm.com">Git</a> by running:
-      <pre>$ git clone git://github.com/farnoux/copsy</pre>
+      <form id="form-color" action="#">
+        <input type="text" class="mandatory"><br>
+        <input type="text" class="numeric"><br>
+        <input type="text" class="mandatory email"><br>
+
+        <input type="submit" value="Submit">
+      </form>
+      <pre>
+$('#form-color').copsy(function (when) {
+  when.fail(function (e) {
+    e.css('background-color', 'red');
+  });
+  when.done(function (e) {
+    e.css('background-color', 'white');
+  });
+});
+      </pre>
+      <script>
+        $(document).ready(function(){
+          $('#form-color').copsy(function (when) {
+            when.fail(function (e) {
+              e.css('background-color', 'red');
+            });
+            when.done(function (e) {
+              e.css('background-color', 'white');
+            });
+          });
+        });
+      </script>
+    </p>
+    
+    <h2>Why another validation plugin?</h2>
+    <p>
+      Why not.
     </p>
 
     <h2>Contact</h2>
     <p>
-      Copsy is <a href="http://github.com/farnoux/copsy">hosted on GitHub</a>. Feel free to report any <a href="http://github.com/farnoux/copsy/issues">bug or feature</a>.<br>You can also directly <a href="http://github.com/inbox/new/farnoux">send me a message</a>. Or a tweet to <a href="http://twitter.com/farnoux">@farnoux</a>.
+      Copsy is <a href="http://github.com/farnoux/copsy">hosted on GitHub</a>. Feel free to report any <a href="http://github.com/farnoux/copsy/issues">bug or feature</a>.<br>You can also directly <a href="http://github.com/inbox/new/farnoux">send me a message</a> or a tweet to <a href="http://twitter.com/farnoux">@farnoux</a>.
     </p>
-
-    <div>
-      <a href="http://github.com/farnoux/copsy/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/farnoux/copsy/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
 
   </div>
 
