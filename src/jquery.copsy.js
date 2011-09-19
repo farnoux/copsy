@@ -18,8 +18,8 @@
       return false;
     }
 
-    var i, v, args, value = this.$element.val();
-    for (i = 0; i < this.validators.length; i++) {
+    var i, v, args, l = this.validators.length, value = this.$element.val();
+    for (i = 0; i < l; i++) {
       v = this.validators[i];
       args = (v.test.length === 2) ? [this.$element, value] : [value];
       if (!v.test.apply(null, args)) {
