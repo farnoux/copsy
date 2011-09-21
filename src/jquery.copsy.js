@@ -4,9 +4,8 @@
 // Released under the MIT license
 
 (function ($) {
-  //
+
   //## Copsy object
-  //
   function Copsy(element, validators) {
     this.$element = $(element);
     this.validators = validators;
@@ -30,13 +29,9 @@
   };
   
   //## Copsy jQuery plugin
-  $.fn.copsy = function (handler) {
+  $.fn.copsy = function (options) {
     var $form = this, 
-      $elements = $form.find(":input");
-    
-    if (handler) {
-      $.fn.copsy.addHandler(handler);
-    }
+        options = $.extend({}, $.fn.copsy.defaults, options);
 
     function getValidator(element, name) {
       // Is there validators matching this `name` ?
@@ -101,16 +96,18 @@
     // When form is submitted, validate all its elements.
     function submit() {
       var valid = true;
-      $elements.each(function () {
-        valid = validate.apply(this) && valid;
-      });
+      for(var i = 0, l = options.trigger.length; i < l; i += 2) {
+        $form.find(options.trigger[i]).each(function () {
+          valid = validate.apply(this) && valid;
+        });
+      }
       return valid;
     }
 
-    // Bind fields' events
-    // TODO: put this in $.fn.copsy.defaults options
-    $elements.filter(':radio').bind('change', validate);
-    $elements.not(':radio').bind('focus blur change keyup', validate);
+    for(var i = 0, l = options.trigger.length; i < l; i += 2) {
+      // Bind events that trigger validation.
+      this.find(options.trigger[i]).bind(options.trigger[i+1], validate);
+    }
     
     // Bind form submit
     $form.submit(submit);
@@ -123,6 +120,15 @@
       return true;
     }
   };
+  
+  //### Default configuration
+  $.fn.copsy.defaults = {
+    // Different selectors and their corresponding trigger events.
+    trigger: [
+      ':radio', 'change', 
+      ':input:not(:radio)', 'blur change keyup'
+    ]
+  }
 
   // Array of available validator objects.
   $.fn.copsy.validators = {};
