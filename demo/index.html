@@ -4,8 +4,9 @@
   <title>Copsy demo</title>
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
-  <script src="js/jquery.tipsy.js"></script>
   <script src="../src/jquery.copsy.js"></script>
+  <script src="js/jquery.tipsy.js"></script>
+  <script src="../src/tipsy.adapter.for.copsy.js"></script>
 
   <style>
     body {
@@ -16,24 +17,25 @@
 
   <script>
     $(document).ready(function(){
-      $('form').copsy(function (when) {
-        // Configure styling
-        when.fail(function (e) {
-          e.css('background-color', 'GREEN');
-        }).done(function (e) {
-          e.css('background-color', 'white');
+      
+        $.fn.copsy.addHandler(function (when) {
+          when.fail(function (e) {
+            e.css('background-color', 'green');
+          }).done(function (e) {
+            e.css('background-color', 'white');
+          });
         });
-      });
 
+      $('form').copsy();
     });
   </script>
 </head>
 <body>
 
   <form>
-    <input type="text" class="required"><br>
+    <input type="text" class="mandatory"><br>
     <input type="text" class="numeric"><br>
-    <input type="text" class="required email"><br>
+    <input type="text" class="mandatory email"><br>
 
     <input type="submit" value="Submit">
   </form>
