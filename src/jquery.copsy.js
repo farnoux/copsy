@@ -130,7 +130,7 @@
     // Different selectors and their corresponding trigger events.
     trigger: [
       ':radio', 'change', 
-      ':input:not(:radio)', 'blur change keyup'
+      ':input:not(:radio):not(:submit)', 'blur change keyup'
     ]
   }
 
