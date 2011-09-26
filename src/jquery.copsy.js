@@ -52,7 +52,11 @@
     }
     
     function getValidators(element) {
-      return $.map(element.attr('class').split(/\s+/), function (name) {
+      var classnames = element.attr('class');
+      if(classnames === undefined) {
+        return null;
+      }
+      return $.map(classnames.split(/\s+/), function (name) {
         return getValidator(element, name) || null;
       });
     }
