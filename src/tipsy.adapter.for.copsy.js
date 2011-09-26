@@ -1,11 +1,11 @@
 (function ($) {
   //
   // Add validation handlers to enable Tipsy tooltips.
-  // `validation` represent a Promise object.
+  // `promise` represent a Promise object.
   //
-  $.fn.copsy.addHandler(function (validation) {
+  $.fn.copsy.addHandler(function (promise) {
     // Hide tooltip when validation pass
-    validation.done(function (element) {
+    promise.done(function (element) {
       var t = element.tipsy(true);
       if (t) {
         t.hide();
