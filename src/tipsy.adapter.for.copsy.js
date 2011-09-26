@@ -19,10 +19,19 @@
         t = element.tipsy(true);
       }
       t.options.title = function () {
-        return $.fn.copsy.message[id];
+        return $.fn.copsy.messages[id];
       };
       t.show();
     });
   });
+  
+  //
+  //### Define validation messages
+  //
+  $.fn.copsy.messages = {
+    mandatory : "Please, specify",
+    email : "Please, enter a valid email",
+    numeric : "Please, enter only numeric values (0-9)"
+  };
 
 })(jQuery);
