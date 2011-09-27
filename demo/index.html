@@ -18,15 +18,36 @@
   <script>
     $(document).ready(function(){
       
-        $.fn.copsy.addHandler(function (when) {
-          when.fail(function (e) {
-            e.css('background-color', 'green');
-          }).done(function (e) {
-            e.css('background-color', 'white');
-          });
+      $.fn.copsy.addHandler(function (when) {
+        when.fail(function (e) {
+          e.css('background-color', 'green');
+        }).done(function (e) {
+          e.css('background-color', 'white');
         });
+      });
 
-      $('form').copsy();
+      // Bind copsy to all field inputs of this form.
+      //$('form').copsy();
+      
+      // Bind default trigger events to this field.
+      $('#alone').copsy();
+
+      // Bind specific trigger events to this field.
+      $('#onmouseover').copsy('mouseover keyup');
+      
+      // Get a copsy object for this field.
+      var manual = $('#manual').copsy(true);
+      $('#manual-validation').click( function (event) {
+        // validate it, and add a custom `done` handler on this validation.
+        manual.validate().fail( function (e) {
+          //element.fadeOut().fadeIn();
+          e.css('border-color', 'red');
+        }).done( function (e) {
+          e.css('border-color', 'green');
+        });
+      });
+      
+
     });
   </script>
 </head>
@@ -39,6 +60,10 @@
 
     <input type="submit" value="Submit">
   </form>
+
+  <input id="alone" type="text" class="mandatory numeric"><br>
+  <input id="onmouseover" type="text" class="mandatory numeric"><br>
+  <input id="manual" type="text" class="mandatory numeric"><a id="manual-validation" href="#">validate me</a><br>
 
 </body>
 </html>

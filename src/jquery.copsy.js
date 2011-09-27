@@ -17,21 +17,43 @@
       return false;
     }
 
-    var i, v, args, l = this.validators.length, value = this.$element.val();
-    for (i = 0; i < l; i++) {
+    var v, args,
+      i = 0,
+      l = this.validators.length,
+      value = this.$element.val(),
+      // Create a [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the validation result.
+      dfd = $.Deferred();
+    
+    for (; i < l; i++) {
       v = this.validators[i];
       args = (v.test.length === 2) ? [this.$element, value] : [value];
+      
+      //* Deferred is rejected if validation fails.
       if (!v.test.apply(null, args)) {
-        return v;
+        dfd.reject(this.$element, v.name);
+        break;
       }
     }
-    return false;
+
+    //* Or successfully resolved otherwise.
+    if (!dfd.isRejected()) {
+      dfd.resolve(this.$element);
+    }
+    
+    // Finally the [Promise object](http://api.jquery.com/deferred.promise/) of the Deferred is returned.
+    return dfd.promise();
   };
   
   //## Copsy jQuery plugin
   $.fn.copsy = function (options) {
-    var $form = this, 
-        options = $.extend({}, $.fn.copsy.defaults, options);
+    if (options === true) {
+      return get(this);
+    }
+    if (typeof options === 'string') {
+      options = { trigger: options };
+    }
+    
+    options = $.extend({}, $.fn.copsy.defaults, options);
 
     function getValidator(element, name) {
       // Is there validators matching this `name` ?
@@ -52,6 +74,7 @@
     }
     
     function getValidators(element) {
+      element = $(element);
       var classnames = element.attr('class');
       if(classnames === undefined) {
         return null;
@@ -70,52 +93,33 @@
       }
       return c;
     }
-    
-    // Validate a form input element
-    function validate() {
-      var element = $(this),
-        // Validate element
-        v = get(element).validate(),
-        // Create a [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the validation result.
-        promise = $.Deferred(function (dfd) {
-          //* Deferred is rejected when validation fails.
-          if (v) {
-            dfd.reject(element, v.name);
-          } 
-          //* Or susccessfully resolved otherwise.
-          else {
-            dfd.resolve(element);
-          }
-        // Finally the [Promise object](http://api.jquery.com/deferred.promise/) of the Deferred is returned.
-        }).promise();
 
+    function validate() {
+      // Validate element
+      var promise = get(this).validate();
+  
       // Add validation handlers to Promise object
       $.each($.fn.copsy.handlers, function () {
         this(promise);
       });
-
-      return !v;
+      
+      // Return `false` if validation has failed.
+      return promise.isRejected();
     }
     
-    // When form is submitted, validate all its elements.
-    function submit() {
-      var valid = true;
-      for(var i = 0, l = options.trigger.length; i < l; i += 2) {
-        $form.find(options.trigger[i]).each(function () {
-          valid = validate.apply(this) && valid;
-        });
+    // If some trigger events have been passed, bind validation to them.
+    if (typeof options.trigger === 'string') {
+      return this.bind(options.trigger, validate);
+    }
+    
+    // Else apply default trigger events.
+    for (var i = 0, l = options.trigger.length; i < l; i += 2) {
+      if(this.is(options.trigger[i])) {
+        this.bind(options.trigger[i+1], validate);
+        break;
       }
-      return valid;
-    }
-
-    for(var i = 0, l = options.trigger.length; i < l; i += 2) {
-      // Bind events that trigger validation.
-      this.find(options.trigger[i]).bind(options.trigger[i+1], validate);
     }
     
-    // Bind form submit
-    $form.submit(submit);
-
     return this;
   };
   
