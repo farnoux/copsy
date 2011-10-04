@@ -51,22 +51,22 @@
     
     options = $.extend({}, $.fn.copsy.defaults, options);
 
-    function getValidator(element, name) {
-      // Is there validators matching this `name` ?
-      var test, v = $.fn.copsy.validators[name];
-      if (!v) {
+    function getValidator(element, id) {
+      // Is there validators matching this `id` ?
+      var test, validators = $.fn.copsy.validators[id];
+      if (!validators) {
         return null;
       }
 
-      // Iterate over validators of type `name`
-      $.each(v, function (selector, fn) {
+      // Iterate over validators of type `id`
+      $.each(validators, function (selector, fn) {
         if (element.is(selector)) {
           test = fn;
           return false; // Break the loop
         }
       });
 
-      return { name: name, test: test };
+      return { id: id, test: test };
     }
     
     function getValidators(element) {
