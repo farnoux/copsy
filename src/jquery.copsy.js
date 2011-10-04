@@ -13,10 +13,6 @@
 
   // Return the validator that didn't pass, `false` otherwise.
   Copsy.prototype.validate = function () {
-    if ($.fn.copsy.skip(this.$element)) {
-      return false;
-    }
-
     var v, args,
       i = 0,
       l = this.validators.length,
@@ -125,12 +121,6 @@
     }
     
     return this;
-  };
-  
-  $.fn.copsy.skip = function (element) {
-    if (element.is(':hidden')) {
-      return true;
-    }
   };
   
   //### Default options
