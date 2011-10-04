@@ -13,29 +13,40 @@
 
   // Return the validator that didn't pass, `false` otherwise.
   Copsy.prototype.validate = function () {
-    var v, args,
-      i = 0,
-      l = this.validators.length,
-      value = this.$element.val(),
+    var self = this,
+      length = self.validators.length,
+      elementValue = self.$element.val(),
       // Create a [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the validation result.
       dfd = $.Deferred();
     
-    for (; i < l; i++) {
-      v = this.validators[i];
-      args = (v.test.length === 2) ? [this.$element, value] : [value];
-      
-      //* Deferred is rejected if validation fails.
-      if (!v.test.apply(null, args)) {
-        dfd.reject(this.$element, v.name);
-        break;
+    function test(i) {
+      //* No more validators to test means all validators have been succesful. Final Deferred is resolved.
+      if (i >= length) {
+        return dfd.resolve(self.$element);
       }
-    }
+      
+      var validator = self.validators[i],
+        args = (validator.test.length === 2) ? [self.$element, elementValue] : [elementValue];
+        result = validator.test.apply(null, args);
 
-    //* Or successfully resolved otherwise.
-    if (!dfd.isRejected()) {
-      dfd.resolve(this.$element);
+      $.when(result).pipe( function (result) {
+        if (result === false) {
+          return $.Deferred().reject();
+        }
+      })
+      //* When validation fails, the element value is not valid. Final Deferred is rejected.
+      .fail( function () {
+        dfd.reject(self.$element, validator.id);
+      })
+      //* When validation is successful, keep going with next validator.
+      .done( function () {
+        test(++i);
+      });
     }
     
+    // Start the validation test execution.
+    test(0);
+
     // Finally the [Promise object](http://api.jquery.com/deferred.promise/) of the Deferred is returned.
     return dfd.promise();
   };
