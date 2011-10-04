@@ -172,7 +172,7 @@
   //### Define validators
   //
   $.fn.copsy.addValidator("mandatory", "input.mandatory", function (value) {
-    return value && value.length > 0;
+    return value.length > 0;
   });
 
   $.fn.copsy.addValidator("numeric", "input.numeric", function (value) {
