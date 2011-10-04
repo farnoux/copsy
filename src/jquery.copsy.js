@@ -140,8 +140,6 @@
 
   // Array of available validator objects.
   $.fn.copsy.validators = {};
-  // Array of validation handlers.
-  $.fn.copsy.handlers = [];
 
   // Handy helper function to easily register new validators.
   // `id` is the unique id
@@ -154,6 +152,9 @@
     v[selector] = fn;
   };
 
+  // Array of validation handlers.
+  $.fn.copsy.handlers = [];
+  
   // Handy helper function to add new validation handlers.
   // `fn` argument is a handler function that should accept a Promise object as unique argument.
   $.fn.copsy.addHandler = function (fn) {
