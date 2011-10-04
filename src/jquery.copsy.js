@@ -84,7 +84,7 @@
       });
     }
 
-    // Get the Copsy object corresponding to the element
+    // Lazy getter that return the Copsy object corresponding to the element passed.
     function get(ele) {
       var c = $.data(ele, 'copsy');
       if (!c) {
@@ -95,10 +95,12 @@
     }
 
     function validate() {
-      // Validate element
+      // Get the Copsy object associated to the element. 
+      // Start validation.
+      // Get the returned promise.
       var promise = get(this).validate();
   
-      // Add validation handlers to Promise object
+      // Apply validation handlers to the promise object
       $.each($.fn.copsy.handlers, function () {
         this(promise);
       });
@@ -107,12 +109,14 @@
       return promise.isRejected();
     }
     
-    // If some trigger events have been passed, bind validation to them.
+    //### Event Binding Options
+    
+    //* If some specific trigger events have been passed, bind validation to them.
     if (typeof options.trigger === 'string') {
       return this.bind(options.trigger, validate);
     }
     
-    // Else apply default trigger events.
+    //* Else apply default trigger events corresponding to the selector this element matches.
     for (var i = 0, l = options.trigger.length; i < l; i += 2) {
       if(this.is(options.trigger[i])) {
         this.bind(options.trigger[i+1], validate);
@@ -129,7 +133,7 @@
     }
   };
   
-  //### Default configuration
+  //### Default options
   $.fn.copsy.defaults = {
     // Different selectors and their corresponding trigger events.
     trigger: [
