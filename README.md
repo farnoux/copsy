@@ -2,4 +2,4 @@
 
 Lightweight, configurable, extensible, form validation for jQuery.
 
-Info and demo at http://farnoux.github.com/copsy/.
+Info and demo at http://farnoux.com/copsy/.
