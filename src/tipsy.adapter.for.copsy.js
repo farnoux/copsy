@@ -19,7 +19,8 @@
         t = element.tipsy(true);
       }
       t.options.title = function () {
-        return $.copsy.messages[id];
+        var reg = /%/;
+        return $.copsy.messages[id].replace(reg, element.val());
       };
       t.show();
     });
@@ -32,7 +33,7 @@
     mandatory : "Please, specify",
     email : "Please, enter a valid email",
     numeric : "Please, enter only numeric values (0-9)",
-    remote: "Remote call failed..."
+    is_github_user: "User '%' doesn't exist..."
   };
 
 })(jQuery);

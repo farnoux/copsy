@@ -16,29 +16,32 @@
     var self = this,
       length = self.validators.length,
       elementValue = self.$element.val(),
-      // Create a [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the validation result.
+      // The final [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the result of the the whole validation process.
       dfd = $.Deferred();
 
     function test(i) {
-      //* No more validators to test means all validators have been succesful. Final Deferred is resolved.
+      //* No more validators to test means all validators have been succesful. Final Deferred `dfd` is resolved.
       if (i >= length) {
         return dfd.resolve(self.$element);
       }
 
       var validator = self.validators[i],
         args = (validator.test.length === 2) ? [self.$element, elementValue] : [elementValue],
-        result = validator.test.apply(null, args);
+        promiseOrResult = validator.test.apply(null, args);
 
-      $.when(result).pipe(function (result) {
-        if (result === false) {
-          return $.Deferred().reject();
-        }
-      })
-        //* When validation fails, the element value is not valid. Final Deferred is rejected.
+      $.when(promiseOrResult)
+        //* Filter the succesful result and reject it in case it equals `false`.
+        .pipe(function (result) {
+          if (result === false) {
+            return $.Deferred().reject();
+          }
+          return result;
+        })
+        //* Current validator failed, so no need to go further. Final Deferred `dfd` is rejected.
         .fail(function () {
           dfd.reject(self.$element, validator.id);
         })
-        //* When validation is successful, keep going with next validator.
+        //* Current validator is successful, so test the next one.
         .done(function () {
           test(i + 1);
         });
@@ -47,7 +50,7 @@
     // Start the validation test execution.
     test(0);
 
-    // Finally the [Promise object](http://api.jquery.com/deferred.promise/) of the Deferred is returned.
+    // Finally return the Deferred's [Promise object](http://api.jquery.com/deferred.promise/).
     return dfd.promise();
   };
 
@@ -125,11 +128,11 @@
       this(promise);
     });
 
-    // Return `false` if validation failed.
+    // Return `false` if validation has failed.
     return promise.isRejected();
   }
 
-
+  //
   //## Copsy jQuery plugin
   $.fn.copsy = function (options) {
     if (options === true) {
