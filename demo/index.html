@@ -4,8 +4,11 @@
   <title>Copsy demo</title>
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js"></script>
+  <!-- // <script src="js/jquery-1.6.4.js"></script> -->
+  <script src="../src/copsy.js"></script>
+  
   <script src="js/jquery.tipsy.js"></script>
-  <script src="../src/jquery.copsy.js"></script>
+  <script src="../src/tipsy.adapter.for.copsy.js"></script>
 
   <style>
     body {
@@ -16,27 +19,78 @@
 
   <script>
     $(document).ready(function(){
-      $('form').copsy(function (when) {
-        // Configure styling
+      
+      $.copsy.addHandler(function (when) {
         when.fail(function (e) {
-          e.css('background-color', 'GREEN');
+          e.css('background-color', 'red');
         }).done(function (e) {
           e.css('background-color', 'white');
         });
       });
 
+      // Bind copsy to all field inputs of this form.
+      //$('form').copsy();
+      
+      // Bind default trigger events to this field.
+      $('#alone').copsy();
+
+      // Bind specific trigger events to this field.
+      $('#onmouseover').copsy('mouseover keyup');
+      
+      // Get a copsy object for this field.
+      var manualCop = $('#manual').copsy(true);
+      $('#manual-validation').click( function (event) {
+        // validate it, and add a custom `done` handler on this validation.
+        manualCop.validate().fail( function (e) {
+          //element.fadeOut().fadeIn();
+          e.css('border-color', 'red');
+        }).done( function (e) {
+          e.css('border-color', 'green');
+        });
+      });
+
+
+      $.copsy.addValidator("is_github_user", ":input", function (element, value) {
+        return $.getJSON('https://api.github.com/users/' + value + '?callback=?')
+          .pipe(function (data) {
+            if (data.meta.status != 200) {
+              return $.Deferred().reject();
+            }
+            return data;
+          })
+          .done(function (data) {
+            var img = $('#avatar');
+            if (img.size() == 0) {
+              img = $('<img id="avatar">');
+              $('#avatar_wrapper').append(img);
+            }
+            img.attr('src', data.data.avatar_url);
+          })
+          .fail(function (data) {
+            $('#avatar').remove();
+          });
+      });
+
+      $('#github_user').copsy();
     });
   </script>
 </head>
 <body>
 
   <form>
-    <input type="text" class="required"><br>
+    <input type="text" class="mandatory"><br>
     <input type="text" class="numeric"><br>
-    <input type="text" class="required email"><br>
+    <input type="text" class="mandatory email"><br>
 
     <input type="submit" value="Submit">
   </form>
 
+  <input id="alone" type="text" class="mandatory numeric"><br>
+  <input id="onmouseover" type="text" class="mandatory numeric"><br>
+  <input id="manual" type="text" class="mandatory numeric"><a id="manual-validation" href="#">validate me</a><br>
+
+  <input id="github_user" type="text" class="is_github_user">
+
+  <p id="avatar_wrapper"></p>
 </body>
 </html>
