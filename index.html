@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html>
 <head>
@@ -104,7 +106,7 @@
 
         <input type="submit" value="Submit">
       </form>
-      <pre>
+{% highlight javascript %}
 $('#form-color').copsy(function (when) {
   when.fail(function (e) {
     e.css('background-color', 'red');
@@ -113,7 +115,7 @@ $('#form-color').copsy(function (when) {
     e.css('background-color', 'white');
   });
 });
-      </pre>
+{% endhighlight %}
       <script>
         $(document).ready(function(){
           $('#form-color').copsy(function (when) {
