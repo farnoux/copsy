@@ -1,0 +1,32 @@
+
+{% highlight js %}
+$('#form-color').copsy(function (when) {
+  when.fail(function (e) {
+    e.css('background-color', 'red');
+  });
+  when.done(function (e) {
+    e.css('background-color', 'white');
+  });
+});
+{% endhighlight %}
+
+  <form id="form-color" action="#">
+    <input type="text" class="mandatory"><br>
+    <input type="text" class="numeric"><br>
+    <input type="text" class="mandatory email"><br>
+
+    <input type="submit" value="Submit">
+  </form>
+
+<script>
+  $(document).ready(function(){
+    $('#form-color').copsy(function (when) {
+      when.fail(function (e) {
+        e.css('background-color', 'red');
+      });
+      when.done(function (e) {
+        e.css('background-color', 'white');
+      });
+    });
+  });
+</script>

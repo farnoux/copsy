@@ -1,0 +1,22 @@
+@mixin selection($bg, $color: inherit, $text-shadow: none){
+  * {
+    &::-moz-selection { background: $bg; color: $color; text-shadow: $text-shadow; }
+    &::-webkit-selection { background: $bg; color: $color; text-shadow: $text-shadow; }
+    &::selection { background: $bg; color: $color; text-shadow: $text-shadow; }
+  }
+}
+
+@function text-color($color, $dark: dark, $light: light){
+  $text-color: ( (red($color)*299) + (green($color)*587) + (blue($color)*114) ) / 1000;
+  $text-color: if($text-color >= 150, $dark, $light);
+  @return $text-color;
+}
+
+@mixin border-radius($radius: 5px) {
+  -moz-border-radius: $radius;
+  -webkit-border-radius: $radius;
+  -o-border-radius: $radius;
+  -ms-border-radius: $radius;
+  -khtml-border-radius: $radius;
+  border-radius: $radius;
+}

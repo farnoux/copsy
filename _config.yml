@@ -1,0 +1,8 @@
+pygments:   true
+
+description: Copsy, Deferred-driven validation plugin for jQuery.
+
+author:
+  name:       Fred Arnoux
+  email:      fred@farnoux.com
+  twitter:    farnoux
