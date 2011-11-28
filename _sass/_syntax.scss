@@ -1,16 +1,15 @@
 .highlight {
-  margin-bottom: 1.8em;
   overflow-y: hidden;
   overflow-x: auto;
 }
 pre {
   background: $pre-bg;
-  @include border-radius(.4em);
+  /*@include border-radius(.4em);*/
   @extend .mono;
   border: 1px solid $pre-border;
   line-height: 1.45em;
   font-size: 13px;
-  margin-bottom: 2.1em;
+  margin-bottom: 1em;
   padding: .8em 1em;
   color: $pre-color;
   overflow: auto;
@@ -22,13 +21,16 @@ p code, li code {
   display: inline-block;
   white-space: no-wrap;
   background: #fff;
-  font-size: .8em;
+  font-size: .9em;
   line-height: 1.5em;
   color: #555;
   border: 1px solid #ddd;
-  @include border-radius(.4em);
   padding: 0 .3em;
   margin: -1px 0;
+}
+a code {
+  background: none;
+  border: none;
 }
 
 .highlight code {

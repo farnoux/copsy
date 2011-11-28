@@ -1,0 +1,25 @@
+<h3>Define a validator</h3>
+<p>
+  A validator represents a specific test that will be applied to an input element.
+</p>
+<p>
+  Use <code>$.copsy.addValidator(name, fn)</code> to define a new validator, where:
+  <ul>
+    <li><code>name</code> is the name of this validator. If another validator is already defined with the same name, it will be overriden.</li>
+    <li>
+      <code>fn</code> is a function that takes the form <code>function (value[, element]) {}</code>, where:
+      <ul>
+        <li><code>value</code> is the value of the input field element to validate.</li>
+        <li><code>element</code> is the input field element itself. This argument is optional.</li>
+      </ul>
+    </li>
+  </ul>
+</p>
+
+{% highlight js %}
+$.copsy.addValidator("mandatory", function (value) {
+  return value.length > 0;
+});
+{% endhighlight %}
+
+<p>Note that Copsy already comes with the following validators: <code>mandatory</code>, <code>numeric</code> and <code>email</code>.</p>

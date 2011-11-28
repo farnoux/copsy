@@ -1,0 +1,35 @@
+<h3>Add a validation handler</h3>
+<p>
+  Handlers allow you to define what's happenning when validation succeed or fail.
+</p>
+<p>
+  Use <code>$.copsy.addHandler(fn)</code> to define a new handler, where:
+  <ul>
+    <li><code>fn</code> is a function that takes the form <code>function (promise) {}</code>, where <code>promise</code> is a jQuery <a href="http://api.jquery.com/deferred.promise"><code>$.Deferred</code>'s <code> Promise</code></a> object.
+    </li>
+  </ul>
+</p>
+
+{% highlight js %}
+$.copsy.addHandler(function (promise) {
+  promise.fail(function (element) {
+    element.css('background-color', 'red');
+  })
+  .done(function (element) {
+    element.css('background-color', 'white');
+  });
+});
+{% endhighlight %}
+
+<script>
+$(document).ready(function () {
+  $.copsy.addHandler(function (promise) {
+    promise.fail(function (element) {
+      element.css('background-color', 'red');
+    })
+    .done(function (element) {
+      element.css('background-color', 'white');
+    });
+  });
+});
+</script>

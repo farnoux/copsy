@@ -1,0 +1,21 @@
+<h3>With specific trigger events</h3>
+<p>
+
+</p>
+
+{% highlight html %}
+<input id="example-2" type="text" class="mandatory">
+{% endhighlight %}
+
+{% highlight js %}
+// Specify copsy validation trigger events.
+$('input#example-2').copsy('mouseover keyup');
+{% endhighlight %}
+
+<input id="example-2" type="text" class="mandatory"><br>
+
+<script>
+$(document).ready(function () {
+  $('input#example-2').copsy('mouseover keyup');
+});
+</script>
