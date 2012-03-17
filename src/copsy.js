@@ -168,6 +168,7 @@
     // Handy helper function to easily register new validators.
     // `id` is the unique id.
     // `selector` is a CSS selector.
+    // `fn` is the test function.
     addValidator : function (id, selector, fn) {
       var v = validators[id];
       if (!v) {
