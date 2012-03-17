@@ -1,6 +1,6 @@
 // Copsy, event-driven form validation for jQuery, using `$.Deferred`.
-// Version 0.1
-// (c) 2011 [Fred Arnoux](mailto:fred@farnoux.com)
+// Version 0.2
+// (c) 2012 [Fred Arnoux](mailto:fred@farnoux.com)
 // Released under the MIT license
 
 (function ($) {
@@ -26,8 +26,8 @@
       }
 
       var validator = self.validators[i],
-        args = (validator.test.length === 2) ? [self.$element, elementValue] : [elementValue],
-        promiseOrResult = validator.test.apply(null, args);
+        args = (validator.fn.length === 2) ? [self.$element, elementValue] : [elementValue],
+        promiseOrResult = validator.fn.apply(null, args);
 
       $.when(promiseOrResult)
         //* Filter the succesful result and reject it in case it equals `false`.
@@ -74,34 +74,15 @@
   //
   //## Plugin methods.
 
-  // Return the validator object corresponding to `id` for the `element`.
-  function getValidator(element, id) {
-    // Is there validators matching this `id` ?
-    var test, v = validators[id];
-    if (!v) {
-      return null;
-    }
-
-    // Iterate over validators of type `id`
-    $.each(v, function (selector, fn) {
-      if (element.is(selector)) {
-        test = fn;
-        return false; // Break the loop
-      }
-    });
-
-    return { id: id, test: test };
+  // Return the validator object corresponding to `id`.
+  function getValidator(id) {
+    return validators[id] || null;
   }
 
-  // Return all validators to apply for the `element`.
-  function getValidators(element) {
-    element = $(element);
-    var classnames = element.attr('class');
-    if (classnames === undefined) {
-      return null;
-    }
-    return $.map(classnames.split(/\s+/), function (name) {
-      return getValidator(element, name) || null;
+  // Return validators corresponding to the list of `ids`.
+  function getValidators(ids) {
+    return $.map(ids, function (id) {
+      return getValidator(id);
     });
   }
 
@@ -164,17 +145,12 @@
     return this;
   };
 
-  $.copsy = {
+  $.copsy = $.extend({}, {
     // Handy helper function to easily register new validators.
-    // `id` is the unique id.
-    // `selector` is a CSS selector.
-    // `fn` is the test function.
-    addValidator : function (id, selector, fn) {
-      var v = validators[id];
-      if (!v) {
-        validators[id] = v = {};
-      }
-      v[selector] = fn;
+    // `id` is the unique id of this validator.
+    // `fn` is the associated validation function.
+    addValidator : function (id, fn) {
+      validators[id] = { id: id, fn: fn };
     },
     // Handy helper function to add new validation handlers.
     // `fn` argument is a handler function that should accept a Promise object as unique argument.    
@@ -183,6 +159,6 @@
         handlers.push(fn);
       }
     }
-  };
+  });
 
 })(jQuery);
