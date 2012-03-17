@@ -150,7 +150,7 @@
 
     //* If some specific trigger events have been passed, bind validation to them.
     if (typeof options.trigger === 'string') {
-      return this.bind(options.trigger, validate);
+      return this.on(options.trigger, validate);
     }
 
     var i, l;
@@ -158,7 +158,7 @@
     //* Else apply default trigger events corresponding to the selector this element matches.
     for (i = 0, l = options.trigger.length; i < l; i += 2) {
       if (this.is(options.trigger[i])) {
-        this.bind(options.trigger[i + 1], validate);
+        this.on(options.trigger[i + 1], validate);
         break;
       }
     }
