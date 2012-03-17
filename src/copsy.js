@@ -16,7 +16,7 @@
     var self = this,
       length = self.validators.length,
       elementValue = self.$element.val(),
-      // The final [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the result of the the whole validation process.
+      // The final [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the result of the whole validation process.
       dfd = $.Deferred();
 
     function test(i) {
