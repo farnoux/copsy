@@ -63,7 +63,12 @@
     trigger: [
       ':radio', 'change',
       ':input:not(:radio):not(:submit)', 'blur change keyup'
-    ]
+    ],
+    // By default get the validator ids for an element from its class attribute.
+    getValidatorIds: function (element) {
+      var classnames = element.attr('class');
+      return classnames ? classnames.split(/\s+/) : undefined;
+    }
   },
     // Array of available validator objects.
     validators = {},
@@ -87,10 +92,11 @@
   }
 
   // Lazy getter that return the Copsy object corresponding to the `element`.
-  function get(element) {
+  function getCopsy(element, options) {
     var c = $.data(element, 'copsy');
     if (!c) {
-      c = new Copsy(element, getValidators(element));
+      var ids = options.getValidatorIds($(element));
+      c = new Copsy(element, getValidators(ids));
       $.data(element, 'copsy', c);
     }
     return c;
@@ -102,7 +108,7 @@
     // Get the Copsy object associated to the element. 
     // Start validation.
     // Get the returned promise.
-    var promise = get(this).validate();
+    var promise = getCopsy(this).validate();
 
     // Apply validation handlers to the promise object
     $.each(handlers, function () {
@@ -115,15 +121,30 @@
 
   //
   //## Copsy jQuery plugin
-  $.fn.copsy = function (options) {
-    if (options === true) {
-      return get(this);
+  $.fn.copsy = function (noBinding, options) {
+    // We can skip the `noBinding` parameter by directly passing the options.
+    if (typeof noBinding !== 'boolean') {
+      options = noBinding;
     }
+
+    // If `options` is a string, assume it's the `trigger` parameter.
     if (typeof options === 'string') {
       options = { trigger: options };
     }
+    // If `options` is a function, assume it's the `getValidatorIds` parameter.
+    else if (typeof options === 'function') {
+      options = { getValidatorIds: options };
+    }
 
     options = $.extend({}, defaults, options);
+
+    // If `noBinding` is true, don't bind events on matching elements,
+    // but directly return their associated Copsy objects.
+    if (noBinding === true) {
+      return this.map(function () {
+        return getCopsy(this, options);
+      });
+    }
 
     //### Event Binding Options
 
