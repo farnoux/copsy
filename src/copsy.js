@@ -6,16 +6,17 @@
 (function ($) {
 
   //## Copsy object
-  function Copsy(element, validators) {
+  function Copsy(element, validators, getElementValueFn) {
     this.$element = $(element);
     this.validators = validators;
+    this.getElementValue = getElementValueFn;
   }
 
   // Return the validator that didn't pass, `false` otherwise.
   Copsy.prototype.validate = function () {
     var self = this,
       length = self.validators.length,
-      elementValue = self.$element.val(),
+      elementValue = self.getElementValue(self.$element),
       // The final [Deferred object](http://api.jquery.com/category/deferred-object/) that wrap the result of the whole validation process.
       dfd = $.Deferred();
 
@@ -68,6 +69,10 @@
     getValidatorIds: function (element) {
       var classnames = element.attr('class');
       return classnames ? classnames.split(/\s+/) : undefined;
+    },
+
+    getElementValue: function (element) {
+      return element.val();
     }
   },
     // Array of available validator objects.
@@ -96,7 +101,7 @@
     var c = $.data(element, 'copsy');
     if (!c) {
       var ids = options.getValidatorIds($(element));
-      c = new Copsy(element, getValidators(ids));
+      c = new Copsy(element, getValidators(ids), options.getElementValue);
       $.data(element, 'copsy', c);
     }
     return c;
